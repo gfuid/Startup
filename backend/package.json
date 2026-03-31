@@ -1,0 +1,27 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "local-services-backend/\r │\r ├── src/\r │   ├── config/\r │   │   ├── db.js\r │   │   └── server.js\r │   │\r │   ├── modules/              # Feature-based architecture\r │   │   ├── auth/\r │   │   │   ├── auth.controller.js\r │   │   │   ├── auth.service.js\r │   │   │   ├── auth.routes.js\r │   │   │   └── auth.validation.js\r │   │   │\r │   │   ├── users/\r │   │   │   ├── user.controller.js\r │   │   │   ├── user.service.js\r │   │   │   ├── user.routes.js\r │   │   │   └── user.model.js\r │   │   │\r │   │   ├── bookings/\r │   │   │   ├── booking.controller.js\r │   │   │   ├── booking.service.js\r │   │   │   ├── booking.routes.js\r │   │   │   └── booking.model.js\r │   │   │\r │   │   ├── payments/\r │   │   │   ├── payment.controller.js\r │   │   │   ├── payment.service.js\r │   │   │   ├── payment.routes.js\r │   │   │   └── payment.model.js\r │   │\r │   ├── middleware/\r │   │   ├── auth.middleware.js\r │   │   ├── role.middleware.js\r │   │   ├── error.middleware.js\r │   │\r │   ├── utils/\r │   │   ├── generateToken.js\r │   │   ├── hashPassword.js\r │   │   └── logger.js\r │   │\r │   ├── routes.js\r │   └── app.js\r │\r ├── .env\r ├── package.json\r └── index.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "express-validator": "^7.3.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.2.2",
+    "morgan": "^1.10.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
