@@ -1,11 +1,23 @@
-// backend/routes/bookingRoutes.js
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth'); // JWT protect
-const { createBooking, getMyBookings } = require('../controllers/bookingController');
+const { authMiddleware, providerMiddleware } = require('../middleware/auth');
+const {
+    createBooking,
+    getCustomerBookings,
+    getProviderBookings,
+    updateBookingStatus,
+    addReview,
+    getBookingMessages,
+} = require('../controllers/bookingController');
 
-// @route  POST api/v1/bookings
-router.post('/', auth, createBooking);
-router.get('/my-bookings', auth, getMyBookings);
+// Customer routes
+router.post('/', authMiddleware, createBooking);
+router.get('/customer', authMiddleware, getCustomerBookings);
+router.post('/:id/review', authMiddleware, addReview);
+router.get('/:id/messages', authMiddleware, getBookingMessages);
+
+// Provider routes
+router.get('/provider', authMiddleware, providerMiddleware, getProviderBookings);
+router.put('/:id/status', authMiddleware, updateBookingStatus);
 
 module.exports = router;
