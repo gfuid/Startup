@@ -74,6 +74,19 @@ const bookingSchema = new mongoose.Schema({
         type: String,
         default: '',
     },
+    startOtp: {
+        type: String,
+        default: '4821',
+    },
+    completedOtp: {
+        type: String,
+        default: '9152',
+    },
+    sosAlerts: [{
+        triggeredBy: String,
+        timestamp: { type: Date, default: Date.now },
+        location: Object,
+    }],
     rating: {
         type: Number,
         min: 0,

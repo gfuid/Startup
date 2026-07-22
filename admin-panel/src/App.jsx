@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { AdminAuthProvider, useAdminAuth } from './context/AdminAuthContext';
 import Dashboard from './pages/Dashboard';
+import ProviderApproval from './pages/ProviderApproval';
+import Operations from './pages/Operations';
+import Finance from './pages/Finance';
 import Users from './pages/Users';
 import Bookings from './pages/Bookings';
 import Services from './pages/Services';
-import { LayoutDashboard, Users as UsersIcon, Calendar, Briefcase, LogOut, Lock, Shield } from 'lucide-react';
+import { LayoutDashboard, ShieldCheck, Activity, DollarSign, Users as UsersIcon, Calendar, Briefcase, LogOut, Lock, Shield } from 'lucide-react';
 
 function AdminAppContent() {
-    const { admin, loading, login, logout, error } = useAdminAuth();
-    const [activeTab, setActiveTab] = useState('dashboard');
+    const { admin, loading, login, logout } = useAdminAuth();
+    const [activeTab, setActiveTab] = useState('providers');
     
     // Login form state
     const [email, setEmail] = useState('');
@@ -31,14 +34,14 @@ function AdminAppContent() {
 
     if (loading) {
         return (
-            <div className="loading-container">
+            <div className="loading-container" style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <div className="spinner"></div>
-                <p>Initialising Administrative Console...</p>
+                <p style={{ marginTop: '16px', color: 'var(--text-secondary)' }}>Initialising Enterprise Administration Console...</p>
             </div>
         );
     }
 
-    // Login page if not authenticated
+    // Login portal if unauthenticated
     if (!admin) {
         return (
             <div className="login-wrapper">
@@ -46,8 +49,8 @@ function AdminAppContent() {
                     <div className="login-logo">
                         <div className="logo-icon">SH</div>
                     </div>
-                    <h1 className="login-title">ServiceHub Admin</h1>
-                    <p className="login-subtitle">Secure access portal for administration panel</p>
+                    <h1 className="login-title">ServiceHub Enterprise</h1>
+                    <p className="login-subtitle">Secure access portal for provider approval & system administration</p>
                     
                     {loginError && (
                         <div style={{ background: 'var(--error-glow)', color: 'var(--error)', padding: '12px', borderRadius: '12px', fontSize: '14px', marginBottom: '20px', border: '1px solid rgba(239, 68, 68, 0.2)', textAlign: 'center' }}>
@@ -90,24 +93,17 @@ function AdminAppContent() {
         );
     }
 
-    // Admin Dashboard Shell
+    // Active Page Render Switch
     const renderActivePage = () => {
         switch (activeTab) {
+            case 'providers': return <ProviderApproval />;
             case 'dashboard': return <Dashboard />;
+            case 'operations': return <Operations />;
+            case 'finance': return <Finance />;
             case 'users': return <Users />;
             case 'bookings': return <Bookings />;
             case 'services': return <Services />;
-            default: return <Dashboard />;
-        }
-    };
-
-    const getPageTitle = () => {
-        switch (activeTab) {
-            case 'dashboard': return 'Operational Dashboard';
-            case 'users': return 'Accounts & Users';
-            case 'bookings': return 'Bookings Ledger';
-            case 'services': return 'Services Catalogue';
-            default: return 'Operational Dashboard';
+            default: return <ProviderApproval />;
         }
     };
 
@@ -117,10 +113,20 @@ function AdminAppContent() {
             <aside className="sidebar">
                 <div className="logo-container">
                     <div className="logo-icon">SH</div>
-                    <span className="logo-text">ServiceHub</span>
+                    <div>
+                        <span className="logo-text">ServiceHub</span>
+                        <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Enterprise Admin</div>
+                    </div>
                 </div>
 
                 <ul className="menu-list">
+                    <li 
+                        className={`menu-item ${activeTab === 'providers' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('providers')}
+                    >
+                        <ShieldCheck size={18} />
+                        <span>Provider Approval</span>
+                    </li>
                     <li 
                         className={`menu-item ${activeTab === 'dashboard' ? 'active' : ''}`}
                         onClick={() => setActiveTab('dashboard')}
@@ -129,18 +135,25 @@ function AdminAppContent() {
                         <span>Dashboard</span>
                     </li>
                     <li 
+                        className={`menu-item ${activeTab === 'operations' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('operations')}
+                    >
+                        <Activity size={18} />
+                        <span>Operations</span>
+                    </li>
+                    <li 
+                        className={`menu-item ${activeTab === 'finance' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('finance')}
+                    >
+                        <DollarSign size={18} />
+                        <span>Finance</span>
+                    </li>
+                    <li 
                         className={`menu-item ${activeTab === 'users' ? 'active' : ''}`}
                         onClick={() => setActiveTab('users')}
                     >
                         <UsersIcon size={18} />
-                        <span>Users List</span>
-                    </li>
-                    <li 
-                        className={`menu-item ${activeTab === 'bookings' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('bookings')}
-                    >
-                        <Calendar size={18} />
-                        <span>Bookings</span>
+                        <span>User Management</span>
                     </li>
                     <li 
                         className={`menu-item ${activeTab === 'services' ? 'active' : ''}`}
@@ -148,6 +161,13 @@ function AdminAppContent() {
                     >
                         <Briefcase size={18} />
                         <span>Services</span>
+                    </li>
+                    <li 
+                        className={`menu-item ${activeTab === 'bookings' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('bookings')}
+                    >
+                        <Calendar size={18} />
+                        <span>Bookings</span>
                     </li>
                 </ul>
 
@@ -157,13 +177,12 @@ function AdminAppContent() {
                 </button>
             </aside>
 
-            {/* Main Area */}
+            {/* Main Content Area */}
             <main className="main-content">
                 <header className="top-bar">
-                    <h1 className="page-title">{getPageTitle()}</h1>
-                    <div className="admin-badge">
-                        <Shield size={14} className="text-success" />
-                        <span>Administrator: {admin.name}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Shield size={16} color="var(--accent-primary)" />
+                        <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)' }}>Admin Portal • Logged in as {admin.name}</span>
                     </div>
                 </header>
 

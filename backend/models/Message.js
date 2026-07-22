@@ -14,7 +14,19 @@ const MessageSchema = new mongoose.Schema({
     },
     text: {
         type: String,
-        required: true
+        default: ''
+    },
+    audioUrl: {
+        type: String,
+        default: ''
+    },
+    isVoiceNote: {
+        type: Boolean,
+        default: false
+    },
+    duration: {
+        type: String,
+        default: '0:05'
     },
     createdAt: {
         type: Date,

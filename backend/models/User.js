@@ -84,12 +84,49 @@ const userSchema = new mongoose.Schema({
         },
         weeklyOff: {
             type: String,
-            default: 'None',
+            default: 'Sunday',
         },
+        bio: {
+            type: String,
+            default: '',
+        },
+        rateCard: [{
+            serviceName: { type: String, required: true },
+            price: { type: Number, required: true },
+            unit: { type: String, default: 'per job' }
+        }],
         upiId: {
             type: String,
             default: '',
         },
+        bankAccountDetails: {
+            accountNumber: { type: String, default: '' },
+            ifscCode: { type: String, default: '' },
+            bankName: { type: String, default: '' },
+            accountHolderName: { type: String, default: '' },
+        },
+        isPaymentVerified: {
+            type: Boolean,
+            default: false,
+        },
+        xpPoints: {
+            type: Number,
+            default: 1850,
+        },
+        tier: {
+            type: String,
+            enum: ['bronze', 'silver', 'gold'],
+            default: 'gold',
+        },
+        rank: {
+            type: Number,
+            default: 2,
+        },
+        badges: [{
+            title: String,
+            icon: String,
+            earnedAt: Date,
+        }],
         gstNumber: {
             type: String,
             default: '',

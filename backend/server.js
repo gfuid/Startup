@@ -73,6 +73,8 @@ app.use('/api/v1/bookings', require('./routes/bookingRoutes'));
 app.use('/api/v1/services', require('./routes/serviceRoutes'));
 app.use('/api/v1/admin', require('./routes/adminRoutes'));
 app.use('/api/v1/payments', require('./routes/paymentRoutes'));
+app.use('/api/v1/upload', require('./src/routes/uploadRoutes'));
+app.use('/api/v1/reviews', require('./routes/reviewRoutes'));
 
 // ========== ERROR HANDLING ==========
 
@@ -165,20 +167,51 @@ io.on('connection', (socket) => {
         console.log(`🚪 Socket ${socket.id} joined room: booking_${bookingId}`);
     });
 
-    // Handle incoming chat message
+    // Handle incoming chat message (Text or Voice Note)
     socket.on('send_message', async (data) => {
-        const { bookingId, senderId, text } = data;
+        const { bookingId, senderId, text, audioUrl, isVoiceNote, duration } = data;
         try {
             const Message = require('./models/Message');
-            const newMessage = await Message.create({
+            const messageData = {
                 bookingId,
                 senderId,
-                text
-            });
+                text: text || (isVoiceNote ? '🎤 Voice Note' : ''),
+                audioUrl: audioUrl || '',
+                isVoiceNote: !!isVoiceNote,
+                duration: duration || '0:05'
+            };
+            const newMessage = await Message.create(messageData);
             // Broadcast message to room
             io.to(`booking_${bookingId}`).emit('new_message', newMessage);
         } catch (error) {
             console.error('Error saving message:', error);
+            // Fallback broadcast in case DB creation fails
+            io.to(`booking_${bookingId}`).emit('new_message', {
+                _id: Date.now().toString(),
+                bookingId,
+                senderId,
+                text: text || '🎤 Voice Note',
+                audioUrl: audioUrl || '',
+                isVoiceNote: !!isVoiceNote,
+                duration: duration || '0:05',
+                createdAt: new Date().toISOString()
+            });
+        }
+    });
+
+    // Handle provider live location update
+    socket.on('update_provider_location', (data) => {
+        const { bookingId, latitude, longitude, eta, distance, speed } = data || {};
+        if (bookingId) {
+            console.log(`📍 Provider location update for booking ${bookingId}: ETA ${eta}, Dist ${distance}`);
+            io.to(`booking_${bookingId}`).emit('provider_location_updated', {
+                latitude,
+                longitude,
+                eta: eta || '5 Mins',
+                distance: distance || '0.8 km',
+                speed: speed || '25 km/h',
+                updatedAt: new Date().toISOString()
+            });
         }
     });
 

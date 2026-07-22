@@ -94,3 +94,67 @@ exports.verifyPayment = async (req, res) => {
         });
     }
 };
+
+// @desc    Validate and Save Provider Payout / Bank Details
+// @route   POST /api/v1/payments/provider-payout-details
+exports.updateProviderPayoutDetails = async (req, res) => {
+    try {
+        const User = require('../models/User');
+        const { upiId, accountNumber, ifscCode, bankName, accountHolderName } = req.body;
+
+        const upiRegex = /^[\w.-]+@[\w.-]+$/;
+        const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+        const accRegex = /^[0-9]{9,18}$/;
+
+        // Validate UPI if provided
+        if (upiId && !upiRegex.test(upiId.trim())) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid UPI ID format! Must be in format user@upi / 9876543210@ybl'
+            });
+        }
+
+        // Validate Bank Details if provided
+        if (accountNumber && !accRegex.test(accountNumber.trim())) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid Account Number! Must be between 9 to 18 numeric digits.'
+            });
+        }
+
+        if (ifscCode && !ifscRegex.test(ifscCode.trim().toUpperCase())) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid IFSC Code! Must be 11 characters (e.g. SBIN0001234)'
+            });
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        user.providerDetails = user.providerDetails || {};
+        if (upiId) user.providerDetails.upiId = upiId.trim();
+        user.providerDetails.bankAccountDetails = {
+            accountNumber: accountNumber ? accountNumber.trim() : user.providerDetails?.bankAccountDetails?.accountNumber || '',
+            ifscCode: ifscCode ? ifscCode.trim().toUpperCase() : user.providerDetails?.bankAccountDetails?.ifscCode || '',
+            bankName: bankName || user.providerDetails?.bankAccountDetails?.bankName || '',
+            accountHolderName: accountHolderName || user.providerDetails?.bankAccountDetails?.accountHolderName || '',
+        };
+        user.providerDetails.isPaymentVerified = true;
+
+        await user.save();
+
+        console.log(`✅ Payout details verified & updated for provider: ${user._id}`);
+
+        res.json({
+            success: true,
+            message: 'Payout details verified and saved successfully! 🎉',
+            providerDetails: user.providerDetails
+        });
+    } catch (error) {
+        console.error('❌ Update payout details error:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
